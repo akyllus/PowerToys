@@ -4,16 +4,21 @@
 
 using System;
 using System.Globalization;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Peek.Common.Helpers;
 using Peek.FilePreviewer.Previewers.Drive.Models;
+using Windows.UI.ViewManagement;
 
 namespace Peek.FilePreviewer.Controls
 {
     public sealed partial class DriveControl : UserControl, IDisposable
     {
+        private readonly UISettings _uiSettings = new();
+        private readonly DispatcherQueue _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source),
             typeof(DrivePreviewData),
@@ -29,6 +34,7 @@ namespace Peek.FilePreviewer.Controls
         public DriveControl()
         {
             ActualThemeChanged += ActualThemeChanged_Handler;
+            _uiSettings.ColorValuesChanged += ColorValuesChanged_Handler;
             InitializeComponent();
         }
 
@@ -60,6 +66,7 @@ namespace Peek.FilePreviewer.Controls
         public void Dispose()
         {
             ActualThemeChanged -= ActualThemeChanged_Handler;
+            _uiSettings.ColorValuesChanged -= ColorValuesChanged_Handler;
         }
 
         private void SetSizeBarColor()
@@ -76,6 +83,11 @@ namespace Peek.FilePreviewer.Controls
         private void ActualThemeChanged_Handler(FrameworkElement sender, object args)
         {
             SetSizeBarColor();
+        }
+
+        private void ColorValuesChanged_Handler(UISettings sender, object args)
+        {
+            _dispatcherQueue.TryEnqueue(SetSizeBarColor);
         }
     }
 }
