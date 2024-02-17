@@ -8,7 +8,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Peek.FilePreviewer.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    SizeChanged="SizeChanged_Handler"
     mc:Ignorable="d">
 
     <Grid
@@ -65,22 +64,22 @@
                 </ToolTipService.ToolTip>
             </TextBlock>
         </StackPanel>
-        <Border
-            x:Name="CapacityBar"
-            Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Height="20"
-            Background="{ThemeResource AccentFillColorDisabledBrush}"
-            CornerRadius="10" />
 
-        <Border
-            x:Name="UsedSpaceBar"
+        <Rectangle
             Grid.Row="1"
             Grid.ColumnSpan="2"
             Height="20"
-            HorizontalAlignment="Left"
-            Background="{ThemeResource AccentFillColorDefaultBrush}"
-            CornerRadius="10,0,0,10" />
+            RadiusX="10"
+            RadiusY="10">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0" >
+                    <GradientStop x:Name="UsedBarStart" Offset="0.0" />
+                    <GradientStop x:Name="UsedBarEnd" Offset="{x:Bind Source.PercentageUsage, Mode=OneWay}" />
+                    <GradientStop x:Name="FreeBarStart" Offset="{x:Bind Source.PercentageUsage, Mode=OneWay}" />
+                    <GradientStop x:Name="FreeBarEnd" Offset="1.0" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
 
         <TextBlock
             Grid.Row="2"

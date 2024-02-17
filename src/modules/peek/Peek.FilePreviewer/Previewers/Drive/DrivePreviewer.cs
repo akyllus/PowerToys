@@ -70,6 +70,11 @@ namespace Peek.FilePreviewer.Previewers.Drive
                     : 0;
 
                 preview.UsedSpace = preview.Capacity - preview.FreeSpace;
+
+                if (preview.Capacity > 0)
+                {
+                    preview.PercentageUsage = (double)preview.UsedSpace / preview.Capacity;
+                }
             }
             else
             {

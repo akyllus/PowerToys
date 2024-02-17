@@ -2,21 +2,23 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Globalization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Peek.Common.Helpers;
 using Peek.FilePreviewer.Previewers.Drive.Models;
 
 namespace Peek.FilePreviewer.Controls
 {
-    public sealed partial class DriveControl : UserControl
+    public sealed partial class DriveControl : UserControl, IDisposable
     {
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source),
             typeof(DrivePreviewData),
             typeof(DriveControl),
-            new PropertyMetadata(null, new PropertyChangedCallback((d, e) => ((DriveControl)d).UpdateSizeBar())));
+            new PropertyMetadata(null, new PropertyChangedCallback((d, e) => ((DriveControl)d).SetSizeBarColor())));
 
         public DrivePreviewData? Source
         {
@@ -26,7 +28,8 @@ namespace Peek.FilePreviewer.Controls
 
         public DriveControl()
         {
-            this.InitializeComponent();
+            ActualThemeChanged += ActualThemeChanged_Handler;
+            InitializeComponent();
         }
 
         public string FormatType(string type)
@@ -54,24 +57,25 @@ namespace Peek.FilePreviewer.Controls
             return string.Format(CultureInfo.CurrentCulture, ResourceLoaderInstance.ResourceLoader.GetString("Drive_UsedSpace"), ReadableStringHelper.BytesToReadableString(usedSpace, false));
         }
 
-        private void SizeChanged_Handler(object sender, SizeChangedEventArgs e)
+        public void Dispose()
         {
-            UpdateSizeBar();
+            ActualThemeChanged -= ActualThemeChanged_Handler;
         }
 
-        private void UpdateSizeBar()
+        private void SetSizeBarColor()
         {
-            if (Source != null && Source.Capacity > 0 && Source.UsedSpace > 0)
-            {
-                var usedRatio = ((double)Source.UsedSpace / Source.Capacity) * 100;
-                var usedWidth = (CapacityBar.ActualWidth * usedRatio) / 100;
-                UsedSpaceBar.Width = usedWidth < 10 ? 10 : usedWidth;
-                UsedSpaceBar.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                UsedSpaceBar.Visibility = Visibility.Collapsed;
-            }
+            var accentDefaultColor = ((SolidColorBrush)Application.Current.Resources["AccentFillColorDefaultBrush"]).Color;
+            UsedBarStart.Color = accentDefaultColor;
+            UsedBarEnd.Color = accentDefaultColor;
+
+            var accentDisabledColor = ((SolidColorBrush)Application.Current.Resources["AccentFillColorDisabledBrush"]).Color;
+            FreeBarStart.Color = accentDisabledColor;
+            FreeBarEnd.Color = accentDisabledColor;
+        }
+
+        private void ActualThemeChanged_Handler(FrameworkElement sender, object args)
+        {
+            SetSizeBarColor();
         }
     }
 }

@@ -30,6 +30,9 @@ namespace Peek.FilePreviewer.Previewers.Drive.Models
         [ObservableProperty]
         private ulong _freeSpace;
 
+        [ObservableProperty]
+        private double _percentageUsage;
+
         public DrivePreviewData()
         {
             Name = string.Empty;
